@@ -23,20 +23,20 @@ public class PaymentSDK {
     private final String consumerSecret;
     private final String consumerKey;
     private final String environment;
-    private final String gateway;
+    private final String rootDomain;
 
 
-    public PaymentSDK(String IVKey, String consumerSecret, String consumerKey, String environment, String gateway) {
+    public PaymentSDK(String IVKey, String consumerSecret, String consumerKey, String environment, String rootDomain) {
         this.IVKey = IVKey;
         this.consumerSecret = consumerSecret;
         this.consumerKey = consumerKey;
         this.environment = environment;
-        this.gateway = gateway.toLowerCase();
+        this.rootDomain = rootDomain.toLowerCase();
     }
     private String getCheckoutBaseUrl() {
         return environment.equals("production")
-                ? "https://api.gateway." + gateway + ".lipaware.com"
-                : "https://sandbox.api.gateway." + gateway + ".lipaware.com";
+                ? "https://api.gateway." + rootDomain
+                : "https://sandbox.api.gateway." + rootDomain;
     }
     private String getCheckoutApiAuthUrl() {
         return getCheckoutBaseUrl() + "/api/v1/api-auth/access-token";
@@ -44,14 +44,14 @@ public class PaymentSDK {
 
     private String getDirectChargeBaseUrl() {
         return environment.equals("production")
-                ? "https://api.gateway." + gateway + ".lipaware.com/v1"
-                : "https://sandbox.api.gateway." + gateway + ".lipaware.com/v1";
+                ? "https://api.gateway." + rootDomain + "/v1"
+                : "https://sandbox.api.gateway." + rootDomain + "/v1";
     }
 
     private String getDirectChargeAuthUrl() {
         return environment.equals("production")
-                ? "https://api.gateway." + gateway + ".lipaware.com/v1/auth"
-                : "https://sandbox.api.gateway." + gateway + ".lipaware.com/v1/auth";
+                ? "https://api.gateway." + rootDomain + "/v1/auth"
+                : "https://sandbox.api.gateway." + rootDomain + "/v1/auth";
 
     }
     public String encrypt(String payload) throws Exception {
@@ -123,7 +123,6 @@ public class PaymentSDK {
     private JSONObject getAccessToken(String consumerKey, String consumerSecret) throws Exception {
         URI uri = new URI(getCheckoutApiAuthUrl());
         URL url = uri.toURL();
-        System.out.println("Auth URL: " + url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -178,9 +177,6 @@ public class PaymentSDK {
         String apiUrl = getCheckoutBaseUrl() + "/api/v1/checkout/request/status?merchant_transaction_id=" +
                 URLEncoder.encode(merchant_transaction_id, StandardCharsets.UTF_8);
 
-        System.out.println("Checkout Status URL: " + apiUrl);
-
-
         URI uri = new URI(apiUrl);
         URL url = uri.toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -207,13 +203,9 @@ public class PaymentSDK {
     }
     public JSONObject checkCheckoutStatus(String merchant_transaction_id) {
         try {
-            System.out.println("Merchant Transaction ID1: " + merchant_transaction_id);
             JSONObject accessTokenResponse = getAccessToken(consumerKey, consumerSecret);
-            System.out.println("Access Token Resp" + accessTokenResponse);
             String accessToken = accessTokenResponse.optString("access_token");
-            System.out.println("Access Token: " + accessToken);
             String checkoutStatusResponse = getCheckoutStatus(merchant_transaction_id, accessToken);
-            System.out.println("Checkout Status Response: " + checkoutStatusResponse);
             return new JSONObject(checkoutStatusResponse);
         } catch (JSONException e) {
             LOGGER.log(Level.SEVERE, String.format("Error parsing JSON response: %s", e.getMessage()), e);
@@ -317,8 +309,6 @@ public void directCharge(String payload, String consumerKey, String consumerSecr
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_CREATED) {
                 try (InputStream inputStream = connection.getInputStream()) {
-
-                    System.out.println("Received successful response.");
                     return handleResponse(inputStream);
                 }
             } else {
@@ -386,8 +376,6 @@ public void directCharge(String payload, String consumerKey, String consumerSecr
     private HttpURLConnection getHttpURLConnection(String chargeRequestId, String accessToken) throws URISyntaxException, IOException {
         String baseUrl = getDirectChargeBaseUrl() + "/transaction/";
         baseUrl += chargeRequestId + "/status";
-        System.out.println("Base URL: " + baseUrl);
-
         URI uri = new URI(baseUrl);
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
         connection.setRequestMethod("GET");

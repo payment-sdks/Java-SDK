@@ -29,7 +29,7 @@ Before getting started, ensure you have the following:
         String consumerKey = <your_consumerKey>;
         String chargeRequestId = <charge_request_id>;
         String environment = <sandbox/production>;
-        String gateway = "gateway_name";
+        String rootDomain = "example.com";
      }
    }
 
@@ -38,7 +38,7 @@ Before getting started, ensure you have the following:
 1. **To initialize the PaymentSDK class, provide the IVKey, consumerKey, consumerSecret, and environment parameters. The environment should be one of the following: 'production' or 'sandbox'.**
 
     ```bash
-   PaymentSDK encryption = new PaymentSDK(IVKey, consumerSecret, consumerKey, environment, gateway);
+   PaymentSDK encryption = new PaymentSDK(IVKey, consumerSecret, consumerKey, environment, rootDomain);
 
 2. **Validate Payload**
 
@@ -85,7 +85,7 @@ Before getting started, ensure you have the following:
 
     ```bash
     String accessKey = <your_accessKey>;
-    String checkoutUrl = STR."https://sandbox.checkout.{{gateway_url}}/?access_key=\{encodeURIComponent(accessKey)}&payload=\{encodeURIComponent(encryptedPayload)}";
+    String checkoutUrl = STR."https://sandbox.checkout.{{rootDomain}}/?access_key=\{encodeURIComponent(accessKey)}&payload=\{encodeURIComponent(encryptedPayload)}";
     System.out.println(STR."Checkout URL: \{checkoutUrl}");
    
 
@@ -94,7 +94,7 @@ Before getting started, ensure you have the following:
 1. **To initialize the PaymentSDK class, provide the IVKey, consumerKey, consumerSecret, and environment parameters. The environment should be one of the following: 'production' or 'sandbox'.**
 
     ```bash
-    PaymentSDK encryption = new PaymentSDK(IVKey, consumerSecret, consumerKey, environment);
+    PaymentSDK encryption = new PaymentSDK(IVKey, consumerSecret, consumerKey, environment, rootDomain);
 
 2. **Direct Charge**
 
