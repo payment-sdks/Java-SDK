@@ -17,7 +17,6 @@ Before getting started, ensure you have the following:
 1. **Import the PaymentSDK class:**
 
     ```bash
-   package ConsumerCheckout;
    import PaymentSDK.PaymentSDK;
 
 2. **Create a Main function.**
